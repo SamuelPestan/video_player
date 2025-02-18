@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:background="@color/black"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <TextView
+        android:id="@+id/bottomSheetTitle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:layout_marginTop="16dp"
+        android:paddingBottom="8dp"
+        android:textColor="@color/red"
+        android:text="@string/select_video"
+        android:textSize="18sp" />
+
+    <ListView
+        android:id="@+id/listVideoView"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1" />
+
+    <Button
+        android:id="@+id/btnAdd"
+        android:layout_width="180dp"
+        android:layout_height="68dp"
+        android:background="@drawable/button_background"
+        android:text="@string/add_video"
+        android:layout_gravity="center"
+        android:theme="@style/ListItemTextStyle"/>
+</LinearLayout>

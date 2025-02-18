@@ -1,0 +1,9 @@
+<resources>
+    <string name="app_name">video_reproductor</string>
+    <string name="title_video">Reproductor de video</string>
+    <string name="select_video">Selecciona un video</string>
+    <string name="add_video">Sube un video</string>
+    <string name="stop">stop</string>
+    <string name="play">play</string>
+    <string name="pause">pause</string>
+</resources>

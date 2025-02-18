@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="ButtonStyle">
+        <item name="android:textColor">@color/black</item>
+        <item name="background">@color/blue</item>
+    </style>
+
+    <style name="ListItemTextStyle">
+        <item name="android:textColor">@android:color/black</item>
+    </style>
+</resources>
