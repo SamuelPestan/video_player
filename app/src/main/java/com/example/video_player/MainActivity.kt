@@ -11,6 +11,7 @@ import android.widget.Button
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.ListView
+import android.widget.SeekBar
 import android.widget.Toast
 import android.widget.VideoView
 import androidx.activity.ComponentActivity
@@ -29,13 +30,14 @@ class MainActivity : ComponentActivity() {
     private lateinit var nextButton: ImageView
     private lateinit var prevButton: ImageView
     private lateinit var controlsContainer: LinearLayout
+    private lateinit var seekBar: SeekBar
 
     private val listVideos = mutableListOf<String>()
     private var currentVideoIndex = -1
     private var bottomSheetDialog: BottomSheetDialog? = null
     private var isBottomSheetOpen = false
 
-    private val handler = Handler(Looper.getMainLooper())  // Handler para manejar el retraso
+    private val handler: Handler = Handler(Looper.getMainLooper())  // Handler para manejar el retraso
 
     // Directorio donde se guardarán los videos
     private val videosDirectory: File by lazy {
@@ -72,6 +74,7 @@ class MainActivity : ComponentActivity() {
         nextButton = findViewById(R.id.next)
         prevButton = findViewById(R.id.previous)
         controlsContainer = findViewById(R.id.controlsContainer)
+        seekBar = findViewById(R.id.videoSeekBar)
 
         // Crea el directorio en caso de que no exista
         if (!videosDirectory.exists()) {
@@ -107,12 +110,15 @@ class MainActivity : ComponentActivity() {
         }
 
         forwardButton.setOnClickListener {
-            videoView.seekTo(videoView.currentPosition + 5000) // Avanza 5 segundos
+            val newPosition = videoView.currentPosition + 5000  // Avanza 5 segundos
+            videoView.seekTo(newPosition)
+            seekBar.progress = newPosition
         }
 
         rewindButton.setOnClickListener {
-            videoView.seekTo((videoView.currentPosition - 5000).coerceAtLeast(0)) // Retrocede 5 segundos
-        }
+            val newPosition = (videoView.currentPosition - 5000).coerceAtLeast(0) // Retrocede 5 segundos
+            videoView.seekTo(newPosition)
+            seekBar.progress = newPosition        }
 
         nextButton.setOnClickListener { playNextVideo() }
         prevButton.setOnClickListener { playPreviousVideo() }
@@ -121,6 +127,50 @@ class MainActivity : ComponentActivity() {
         videoView.setOnClickListener {
             showControls()
             resetHideControlsTimer()  // Reiniciar el temporizador para ocultar los controles
+        }
+
+        // Actualizar el SeekBar mientras el video se reproduce
+        videoView.setOnPreparedListener {
+            // Establecer el valor máximo del SeekBar como la duración total del video
+            seekBar.max = videoView.duration
+
+            // Actualizar el SeekBar mientras el video se reproduce
+            handler.postDelayed(updateSeekBarRunnable, 1000)
+        }
+
+        videoView.setOnCompletionListener {
+            // Detener el Runnable cuando el video haya terminado
+            handler.removeCallbacks(updateSeekBarRunnable)
+        }
+
+        // Configurar el listener del SeekBar para cambiar la posición del video
+        seekBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+            override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
+                if (fromUser) {
+                    videoView.seekTo(progress)  // Cambiar la posición del video
+                }
+            }
+
+            override fun onStartTrackingTouch(seekBar: SeekBar?) {
+                // No necesitamos hacer nada cuando se empieza a mover
+            }
+
+            override fun onStopTrackingTouch(seekBar: SeekBar?) {
+                // No necesitamos hacer nada cuando se deja de mover
+            }
+        })
+    }
+
+    override fun onPause() {
+        super.onPause()
+        handler.removeCallbacks(updateSeekBarRunnable)
+    }
+
+    override fun onResume() {
+        super.onResume()
+        // Reiniciar el Runnable cuando la actividad se reanuda
+        if (videoView.isPlaying) {
+            handler.postDelayed(updateSeekBarRunnable, 1000)
         }
     }
 
@@ -231,5 +281,14 @@ class MainActivity : ComponentActivity() {
     // Runnable para ocultar los controles
     private val hideControlsRunnable = Runnable {
         hideControls()
+    }
+
+    private val updateSeekBarRunnable = object : Runnable {
+        override fun run() {
+            if (videoView.isPlaying) {
+                seekBar.progress = videoView.currentPosition  // Actualizar la posición del SeekBar
+                handler.postDelayed(this, 1000)  // Actualizar cada segundo (sin recursividad directa)
+            }
+        }
     }
 }

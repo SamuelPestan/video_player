@@ -68,6 +68,7 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:padding="10dp"
+        android:max="100"
         android:progressTint="@android:color/holo_red_light"
         android:thumbTint="@android:color/holo_red_light"
         app:layout_constraintEnd_toEndOf="parent"
