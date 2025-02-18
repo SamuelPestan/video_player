@@ -1,11 +1,15 @@
 package com.example.video_player
 
+import android.animation.ObjectAnimator
 import android.annotation.SuppressLint
 import android.net.Uri
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.widget.ArrayAdapter
 import android.widget.Button
 import android.widget.ImageView
+import android.widget.LinearLayout
 import android.widget.ListView
 import android.widget.Toast
 import android.widget.VideoView
@@ -24,12 +28,14 @@ class MainActivity : ComponentActivity() {
     private lateinit var rewindButton: ImageView
     private lateinit var nextButton: ImageView
     private lateinit var prevButton: ImageView
+    private lateinit var controlsContainer: LinearLayout
 
     private val listVideos = mutableListOf<String>()
     private var currentVideoIndex = -1
     private var bottomSheetDialog: BottomSheetDialog? = null
     private var isBottomSheetOpen = false
 
+    private val handler = Handler(Looper.getMainLooper())  // Handler para manejar el retraso
 
     // Directorio donde se guardarán los videos
     private val videosDirectory: File by lazy {
@@ -65,6 +71,7 @@ class MainActivity : ComponentActivity() {
         rewindButton = findViewById(R.id.backward)
         nextButton = findViewById(R.id.next)
         prevButton = findViewById(R.id.previous)
+        controlsContainer = findViewById(R.id.controlsContainer)
 
         // Crea el directorio en caso de que no exista
         if (!videosDirectory.exists()) {
@@ -72,6 +79,7 @@ class MainActivity : ComponentActivity() {
         }
 
         updateList()
+        hideControls()
     }
 
     override fun onStart() {
@@ -91,10 +99,10 @@ class MainActivity : ComponentActivity() {
 
             if (videoView.isPlaying) {
                 videoView.pause()
-                playPauseButton.setImageResource(R.drawable.ic_play)
+                playPauseButton.setImageResource(android.R.drawable.ic_media_play)
             } else {
                 videoView.start()
-                playPauseButton.setImageResource(R.drawable.ic_pause)
+                playPauseButton.setImageResource(android.R.drawable.ic_media_pause)
             }
         }
 
@@ -108,6 +116,12 @@ class MainActivity : ComponentActivity() {
 
         nextButton.setOnClickListener { playNextVideo() }
         prevButton.setOnClickListener { playPreviousVideo() }
+
+        // Mostrar los controles cuando el usuario toque el video
+        videoView.setOnClickListener {
+            showControls()
+            resetHideControlsTimer()  // Reiniciar el temporizador para ocultar los controles
+        }
     }
 
     private fun updateList() {
@@ -118,7 +132,7 @@ class MainActivity : ComponentActivity() {
 
     private fun playSelectedFile(uri: Uri) {
         try {
-            playPauseButton.setImageResource(R.drawable.ic_pause)
+            playPauseButton.setImageResource(android.R.drawable.ic_media_pause)
             videoView.setVideoURI(uri)
             videoView.start()
         } catch (e: Exception) {
@@ -186,5 +200,36 @@ class MainActivity : ComponentActivity() {
             index++
         }
         return newFile
+    }
+
+    private fun hideControls() {
+        // Ocultar los botones
+        playPauseButton.visibility = ImageView.INVISIBLE
+        forwardButton.visibility = ImageView.INVISIBLE
+        rewindButton.visibility = ImageView.INVISIBLE
+        controlsContainer.visibility = LinearLayout.INVISIBLE
+    }
+
+    private fun showControls() {
+        val fadeIn = ObjectAnimator.ofFloat(controlsContainer, "alpha", 0f, 1f)
+        fadeIn.duration = 500  // Duración de la animación (en milisegundos)
+        fadeIn.start()
+
+        // Mostrar los botones
+        playPauseButton.visibility = ImageView.VISIBLE
+        forwardButton.visibility = ImageView.VISIBLE
+        rewindButton.visibility = ImageView.VISIBLE
+        controlsContainer.visibility = LinearLayout.VISIBLE
+    }
+
+
+    private fun resetHideControlsTimer() {
+        handler.removeCallbacks(hideControlsRunnable)  // Eliminar cualquier retraso anterior
+        handler.postDelayed(hideControlsRunnable, 3000)  // Ocultar controles después de 3 segundos
+    }
+
+    // Runnable para ocultar los controles
+    private val hideControlsRunnable = Runnable {
+        hideControls()
     }
 }
