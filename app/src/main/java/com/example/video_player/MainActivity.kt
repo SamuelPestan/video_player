@@ -152,11 +152,11 @@ class MainActivity : ComponentActivity() {
             }
 
             override fun onStartTrackingTouch(seekBar: SeekBar?) {
-                // No necesitamos hacer nada cuando se empieza a mover
+                
             }
 
             override fun onStopTrackingTouch(seekBar: SeekBar?) {
-                // No necesitamos hacer nada cuando se deja de mover
+                
             }
         })
     }
@@ -174,12 +174,14 @@ class MainActivity : ComponentActivity() {
         }
     }
 
+    // Guarda la duración de la canción cuando se le da la vuelta
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
         val currentPosition = videoView.currentPosition
         outState.putInt("video_position", currentPosition)
     }
 
+    // Recupera la instancia guardada
     override fun onRestoreInstanceState(savedInstanceState: Bundle) {
         super.onRestoreInstanceState(savedInstanceState)
         val position = savedInstanceState.getInt("video_position")
@@ -229,6 +231,7 @@ class MainActivity : ComponentActivity() {
         }
     }
 
+    // Reproduce si hay el video anterior
     private fun playNextVideo() {
         if (listVideos.isNotEmpty()) {
             currentVideoIndex = (currentVideoIndex + 1) % listVideos.size
@@ -236,6 +239,7 @@ class MainActivity : ComponentActivity() {
         }
     }
 
+    // Reproduce si hay el video anterior
     private fun playPreviousVideo() {
         if (listVideos.isNotEmpty()) {
             currentVideoIndex = if (currentVideoIndex > 0) currentVideoIndex - 1 else listVideos.size - 1
@@ -273,6 +277,7 @@ class MainActivity : ComponentActivity() {
         controlsContainer.visibility = LinearLayout.INVISIBLE
     }
 
+    // Muestra los controles con una animación cuando el usuario clica sobre el video
     private fun showControls() {
         val fadeIn = ObjectAnimator.ofFloat(controlsContainer, "alpha", 0f, 1f)
         fadeIn.duration = 500  // Duración de la animación (en milisegundos)
