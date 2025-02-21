@@ -174,6 +174,19 @@ class MainActivity : ComponentActivity() {
         }
     }
 
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        val currentPosition = videoView.currentPosition
+        outState.putInt("video_position", currentPosition)
+    }
+
+    override fun onRestoreInstanceState(savedInstanceState: Bundle) {
+        super.onRestoreInstanceState(savedInstanceState)
+        val position = savedInstanceState.getInt("video_position")
+        videoView.seekTo(position)
+        videoView.start() // Opcional: Inicia el video automáticamente
+    }
+
     private fun updateList() {
         // Limpiar la lista de videos antes de agregar nuevas
         listVideos.clear()
